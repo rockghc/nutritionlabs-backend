@@ -56,7 +56,7 @@ Hibernate validates the schema at startup (`ddl-auto: validate`); it never chang
 ## Keycloak
 
 The API validates the access tokens with the keys of the realm `freedom-realm-keycloak`
-(`KEYCLOAK_URL`, default `http://localhost:8080`, and `KEYCLOAK_REALM`). Every endpoint requires the realm or
+(`KEYCLOAK_URL`, default `http://localhost:8080/auth`, and `KEYCLOAK_REALM`). Every endpoint requires the realm or
 client role `user` (`nutritionlabs.security.required-role`). The username is the `preferred_username` claim.
 
 ## Run

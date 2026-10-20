@@ -25,7 +25,7 @@ spring:
       resourceserver:
         jwt:
           # Signing keys of the existing Keycloak realm.
-          jwk-set-uri: ${KEYCLOAK_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:freedom-realm-keycloak}/protocol/openid-connect/certs
+          jwk-set-uri: ${KEYCLOAK_URL:http://localhost:8080/auth}/realms/${KEYCLOAK_REALM:freedom-realm-keycloak}/protocol/openid-connect/certs
 
   servlet:
     multipart:
