@@ -1,0 +1,55 @@
+server:
+  # Port of the former Zuul gateway, the front end proxy already points to it.
+  port: 8083
+
+spring:
+  application:
+    name: NutritionLabsBackend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/NutritionLabsBD?currentSchema=nutritionlabs
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:Elvish}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      # The schema is created by the scripts of the database folder.
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: nutritionlabs
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Signing keys of the existing Keycloak realm.
+          jwk-set-uri: ${KEYCLOAK_URL:http://localhost:8080}/realms/${KEYCLOAK_REALM:freedom-realm-keycloak}/protocol/openid-connect/certs
+
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 400MB
+      max-request-size: 600MB
+
+  jackson:
+    deserialization:
+      fail-on-null-for-primitives: false
+
+  data:
+    web:
+      pageable:
+        serialization-mode: direct
+
+nutritionlabs:
+  security:
+    # Keycloak role required to call the API.
+    required-role: user
+    allowed-origins:
+      - http://localhost:4200
+
+logging:
+  level:
+    com.nutritionlabs: INFO
