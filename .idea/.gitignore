@@ -8,9 +8,9 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
-/.idea/compiler.xml
-/.idea/encodings.xml
-/.idea/jarRepositories.xml
-/.idea/misc.xml
-/.idea/vcs.xml
+/compiler.xml
+/encodings.xml
+/jarRepositories.xml
+/misc.xml
+/vcs.xml
 
