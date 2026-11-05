@@ -49,6 +49,16 @@ nutritionlabs:
     required-role: user
     allowed-origins:
       - http://localhost:4200
+  keycloak:
+    # Admin REST API. The client needs the service account with the "manage-users" and "view-realm" roles of
+    # "realm-management".
+    url: ${KEYCLOAK_URL:http://localhost:8080/auth}
+    realm: ${KEYCLOAK_REALM:freedom-realm-keycloak}
+    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:nutritionlabs-backend}
+    client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:b582969d-1e3e-4e88-895a-37e9a948ad90}
+    # Realm roles given to the new users.
+    realm-roles:
+      - user
 
 logging:
   level:

@@ -33,6 +33,8 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(authorize -> authorize
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						// Self-registration: anyone can create a Keycloak user.
+						.requestMatchers(HttpMethod.POST, ResourcePaths.KEYCLOAK_USER).permitAll()
 						.requestMatchers(
 								ResourcePaths.USER + "/**",
 								ResourcePaths.CATALOG + "/**",

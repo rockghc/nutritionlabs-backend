@@ -75,6 +75,15 @@ class ApiIntegrationTest {
 	}
 
 	@Test
+	void createKeycloakUserDoesNotRequireToken() throws Exception {
+		// Rejected by the validation before calling Keycloak, so it is not a 401.
+		mockMvc.perform(post("/resourceUser/keycloakuser")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"username\":\"newuser\"}"))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
 	void listsPatientsOfUserWithTrailingSlash() throws Exception {
 		mockMvc.perform(get("/resourceUser/user/").with(user1()))
 				.andExpect(status().isOk())

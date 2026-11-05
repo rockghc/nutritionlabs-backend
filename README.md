@@ -59,6 +59,19 @@ The API validates the access tokens with the keys of the realm `freedom-realm-ke
 (`KEYCLOAK_URL`, default `http://localhost:8080/auth`, and `KEYCLOAK_REALM`). Every endpoint requires the realm or
 client role `user` (`nutritionlabs.security.required-role`). The username is the `preferred_username` claim.
 
+`POST /resourceUser/keycloakuser` creates a Keycloak user. It is public (self-registration), no token is needed:
+
+```json
+{ "username": "jdoe", "email": "jdoe@mail.com", "firstName": "John", "lastName": "Doe",
+  "password": "secret", "temporaryPassword": true }
+```
+
+It calls the Keycloak Admin REST API with the service account of a confidential client
+(`KEYCLOAK_ADMIN_CLIENT_ID`, default `nutritionlabs-backend`, and `KEYCLOAK_ADMIN_CLIENT_SECRET`). In Keycloak, enable
+*Client authentication* and *Service accounts* on that client and give its service account the roles
+`manage-users` and `view-realm` of `realm-management`. The new user gets the realm roles of
+`nutritionlabs.keycloak.realm-roles` (default `user`).
+
 ## Run
 
 ```powershell

@@ -13,6 +13,8 @@ public final class ResourcePaths {
 	public static final String FILE = "/resourceFile";
 	public static final String REPORT = "/resourceReport";
 
+	public static final String KEYCLOAK_USER = USER + "/keycloakuser";
+
 	private ResourcePaths() {
 	}
 }
