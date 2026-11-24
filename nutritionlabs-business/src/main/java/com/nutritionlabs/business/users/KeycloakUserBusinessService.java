@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.nutritionlabs.domain.users.dto.CreateKeycloakUserParamsDTO;
 import com.nutritionlabs.domain.users.dto.KeycloakUserDTO;
+import com.nutritionlabs.domain.users.dto.UserProfileDTO;
 import com.nutritionlabs.properties.KeycloakAdminProperties;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,25 +39,41 @@ public class KeycloakUserBusinessService {
 
 	private final RestClient restClient;
 
-	public KeycloakUserBusinessService(KeycloakAdminProperties keycloakProperties) {
+	private final UserProfileBusinessService userProfileBusinessService;
+
+	public KeycloakUserBusinessService(KeycloakAdminProperties keycloakProperties,
+			UserProfileBusinessService userProfileBusinessService) {
 		this.keycloakProperties = keycloakProperties;
+		this.userProfileBusinessService = userProfileBusinessService;
 		this.restClient = RestClient.builder().baseUrl(keycloakProperties.url()).build();
 	}
 
 	/**
-	 * Creates an enabled user with a password and the configured realm roles.
+	 * Creates an enabled user with a password and the configured realm roles, and its row in nlabs_user_profiles.
+	 * If the profile cannot be stored, the Keycloak user is deleted so the account is not left without profile.
 	 */
 	public KeycloakUserDTO createUser(CreateKeycloakUserParamsDTO params) {
 		validate(params);
 		String accessToken = getAccessToken();
 		String userId = postUser(params, accessToken);
-		assignRealmRoles(userId, accessToken);
+		UserProfileDTO profile;
+		try {
+			assignRealmRoles(userId, accessToken);
+			profile = userProfileBusinessService.createProfile(params.getUsername(), userId, params.getProfile());
+		} catch (RuntimeException ex) {
+			deleteUser(userId, params.getUsername(), accessToken);
+			if (ex instanceof DataIntegrityViolationException) {
+				throw new ResponseStatusException(HttpStatus.CONFLICT, "The profile of the user could not be stored", ex);
+			}
+			throw ex;
+		}
 		return KeycloakUserDTO.builder()
 				.id(userId)
 				.username(params.getUsername())
 				.email(params.getEmail())
 				.firstName(params.getFirstName())
 				.lastName(params.getLastName())
+				.profile(profile)
 				.build();
 	}
 
@@ -65,6 +83,26 @@ public class KeycloakUserBusinessService {
 		}
 		if (!StringUtils.hasText(params.getPassword())) {
 			throw new IllegalArgumentException("The password is required");
+		}
+		userProfileBusinessService.validate(params.getProfile());
+		if (userProfileBusinessService.existsProfile(params.getUsername())) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "A user with the same username already exists");
+		}
+	}
+
+	/**
+	 * Rollback of a Keycloak user whose creation could not be completed.
+	 */
+	private void deleteUser(String userId, String username, String accessToken) {
+		try {
+			restClient.delete()
+					.uri("/admin/realms/{realm}/users/{id}", keycloakProperties.realm(), userId)
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+					.retrieve()
+					.toBodilessEntity();
+		} catch (RestClientException ex) {
+			log.error("The Keycloak user {} ({}) could not be deleted after a failed creation, delete it manually",
+					username, userId, ex);
 		}
 	}
 

@@ -26,4 +26,6 @@ public class CreateKeycloakUserParamsDTO implements Serializable {
 	private String lastName;
 	private String password;
 	private Boolean temporaryPassword;
+	/** Optional data of the "complete-profile" interface, stored in nlabs_user_profiles. */
+	private UserProfileParamsDTO profile;
 }

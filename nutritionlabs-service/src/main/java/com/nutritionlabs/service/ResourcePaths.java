@@ -14,6 +14,7 @@ public final class ResourcePaths {
 	public static final String REPORT = "/resourceReport";
 
 	public static final String KEYCLOAK_USER = USER + "/keycloakuser";
+	public static final String USER_PROFILE = USER + "/profile";
 
 	private ResourcePaths() {
 	}
