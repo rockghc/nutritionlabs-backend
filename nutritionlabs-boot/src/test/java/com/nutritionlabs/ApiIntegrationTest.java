@@ -84,6 +84,42 @@ class ApiIntegrationTest {
 	}
 
 	@Test
+	void gendersCatalogDoesNotRequireToken() throws Exception {
+		mockMvc.perform(get("/resourceCatalog/catalog/11")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("genders"));
+		mockMvc.perform(get("/resourceCatalog/catalog/11/")).andExpect(status().isOk());
+	}
+
+	@Test
+	void countriesCatalogDoesNotRequireToken() throws Exception {
+		mockMvc.perform(get("/resourceCatalog/catalog/12")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("countries"));
+		mockMvc.perform(get("/resourceCatalog/catalog/12/")).andExpect(status().isOk());
+	}
+
+	@Test
+	void dialingCodesCatalogDoesNotRequireToken() throws Exception {
+		mockMvc.perform(get("/resourceCatalog/catalog/13")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("dataDialingCode"))
+				.andExpect(jsonPath("$.catalogDetails[?(@.name == 'dialing_code_colombia')].label").value("+57"));
+	}
+
+	@Test
+	void professionsCatalogDoesNotRequireToken() throws Exception {
+		mockMvc.perform(get("/resourceCatalog/catalog/20")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("professions"))
+				.andExpect(jsonPath("$.catalogDetails", hasSize(6)));
+	}
+
+	@Test
+	void otherCatalogsRequireToken() throws Exception {
+		mockMvc.perform(get("/resourceCatalog/catalog/")).andExpect(status().isUnauthorized());
+		mockMvc.perform(get("/resourceCatalog/catalog/14")).andExpect(status().isUnauthorized());
+		mockMvc.perform(get("/resourceCatalog/catalog/11/catalogdetail/1")).andExpect(status().isUnauthorized());
+		mockMvc.perform(get("/resourceCatalog/catalog/12/catalogdetail/1")).andExpect(status().isUnauthorized());
+	}
+
+	@Test
 	void listsPatientsOfUserWithTrailingSlash() throws Exception {
 		mockMvc.perform(get("/resourceUser/user/").with(user1()))
 				.andExpect(status().isOk())
@@ -144,7 +180,7 @@ class ApiIntegrationTest {
 
 	@Test
 	void readsCatalogsWithLinks() throws Exception {
-		mockMvc.perform(get("/resourceCatalog/catalog/").with(user1())).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(19)));
+		mockMvc.perform(get("/resourceCatalog/catalog/").with(user1())).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(20)));
 		mockMvc.perform(get("/resourceCatalog/catalog/1").with(user1()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.catalogDetails.length()").value(greaterThan(0)));

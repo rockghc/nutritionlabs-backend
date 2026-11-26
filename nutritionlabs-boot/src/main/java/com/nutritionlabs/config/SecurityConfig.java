@@ -35,6 +35,12 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						// Self-registration: anyone can create a Keycloak user.
 						.requestMatchers(HttpMethod.POST, ResourcePaths.KEYCLOAK_USER).permitAll()
+						// Only the catalogs of the sign up form are public, the other catalogs need the role.
+						.requestMatchers(HttpMethod.GET,
+								ResourcePaths.CATALOG_GENDERS,
+								ResourcePaths.CATALOG_COUNTRIES,
+								ResourcePaths.CATALOG_DIALING_CODES,
+								ResourcePaths.CATALOG_PROFESSIONS).permitAll()
 						.requestMatchers(
 								ResourcePaths.USER + "/**",
 								ResourcePaths.CATALOG + "/**",
